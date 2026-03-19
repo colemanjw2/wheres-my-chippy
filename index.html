@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+  <title>Where’s My Chippy?</title>
+  <meta
+    name="description"
+    content="A hidden-object web game where you search different scenes to find Chippy."
+  >
+
+  <style>
+    :root {
+      --xp-bg: #ece9d8;
+      --xp-panel: #ffffff;
+      --xp-border: #7f9db9;
+      --xp-header: #d4d0c8;
+      --xp-link: #000080;
+      --xp-hover: #eaf2ff;
+      --text: #000000;
+      --scene-width: 640px;
+      --scene-height: 400px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--xp-bg);
+      color: var(--text);
+      font-family: Tahoma, Verdana, Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .window {
+      width: 660px;
+      max-width: 100%;
+      margin: 0 auto;
+      border: 1px solid var(--xp-border);
+      background: var(--xp-panel);
+    }
+
+    .titlebar {
+      background: url("/assets/xpbar.png") repeat-x;
+      color: #ffffff;
+      font-weight: bold;
+      padding: 6px 10px;
+    }
+
+    .content {
+      padding: 10px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .controls label {
+      font-weight: bold;
+    }
+
+    .xpselect,
+    .xpbutton {
+      font: inherit;
+    }
+
+    .scene {
+      position: relative;
+      width: var(--scene-width);
+      height: var(--scene-height);
+      max-width: 100%;
+      border: 1px solid var(--xp-border);
+      background-image: url("park_bg.png");
+      background-repeat: no-repeat;
+      background-size: contain;
+      overflow: hidden;
+    }
+
+    .hotspot {
+      position: absolute;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .hotspot:hover,
+    .hotspot:focus {
+      background: rgba(255, 255, 153, 0.3);
+      outline: 1px solid rgba(127, 157, 185, 0.7);
+    }
+
+    .hotspot:focus-visible {
+      outline: 2px solid var(--xp-border);
+    }
+
+    /*
+      For debugging hotspot positions, temporarily use this instead:
+
+      .hotspot {
+        background: rgba(255, 0, 0, 0.35);
+      }
+    */
+
+    #chippy {
+      position: absolute;
+      left: 420px;
+      top: 215px;
+      width: 250px;
+      height: 250px;
+      display: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .panel {
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px solid var(--xp-border);
+      background: #f5f5f5;
+      min-height: 36px;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0 0 0 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+  </style>
+</head>
+<body>
+  <main class="window" aria-labelledby="game-title">
+    <header class="titlebar" id="game-title">Where’s My Chippy?</header>
+
+    <section class="content">
+      <div class="controls">
+        <label for="sceneSelect">Search Location:</label>
+
+        <select id="sceneSelect" class="xpselect" name="scene">
+          <option value="park">The Park</option>
+          <option value="sea">Under the Sea</option>
+          <option value="redlight">Red Light District</option>
+        </select>
+
+        <button id="resetButton" class="xpbutton" type="button">Reset</button>
+      </div>
+
+      <section
+        id="scene"
+        class="scene"
+        aria-label="Search scene"
+      >
+        <button
+          id="hotspot1"
+          class="hotspot"
+          type="button"
+          aria-label="Search hotspot 1"
+        ></button>
+
+        <button
+          id="hotspot2"
+          class="hotspot"
+          type="button"
+          aria-label="Search hotspot 2"
+        ></button>
+
+        <button
+          id="hotspot3"
+          class="hotspot"
+          type="button"
+          aria-label="Search hotspot 3"
+        ></button>
+
+        <button
+          id="hotspot4"
+          class="hotspot"
+          type="button"
+          aria-label="Search correct hotspot"
+        ></button>
+
+        <img id="chippy" src="chippy.gif" alt="Chippy has been found">
+      </section>
+
+      <div
+        id="message"
+        class="panel"
+        role="status"
+        aria-live="polite"
+      >
+        Click around and find Chippy.
+      </div>
+    </section>
+  </main>
+
+  <audio id="audioIntro" preload="auto" src="where_is_my_chippy.wav"></audio>
+  <audio id="audioSniff" preload="auto" src="sniff_chippy.wav"></audio>
+  <audio id="audioWorried" preload="auto" src="chippy_im_worried.wav"></audio>
+  <audio id="audioChip" preload="auto" src="chipchipchipchip.wav"></audio>
+  <audio id="audioFound" preload="auto" src="there_is_my_chippy.wav"></audio>
+  <audio id="audioReset" preload="auto" src="great_job.wav"></audio>
+
+  <script>
+    (() => {
+      let gameWon = false;
+      let currentScene = "park";
+      let introAudioUnlocked = false;
+
+      const scenes = {
+        park: {
+          bg: "park_bg.png",
+          intro: "Click around the park and find Chippy.",
+          wrong1: "Nope, not in the garbage.",
+          wrong2: "Nope, not in the tree.",
+          wrong3: "Nope, not in the playground.",
+          h1: [75, 250, 80, 140],
+          h2: [80, 110, 40, 40],
+          h3: [380, 70, 150, 100],
+          h4: [540, 300, 90, 90],
+          cpos: [420, 215, 250, 250]
+        },
+
+        sea: {
+          bg: "sea_bg.png",
+          intro: "Click around under the sea and find Chippy.",
+          wrong1: "Nope, not in the shell.",
+          wrong2: "Nope, not in the sea cave.",
+          wrong3: "Nope, not in the shipwreck.",
+          h1: [40, 270, 120, 90],
+          h2: [60, 180, 100, 70],
+          h3: [200, 90, 150, 120],
+          h4: [500, 260, 100, 100],
+          cpos: [420, 200, 250, 250]
+        },
+
+        redlight: {
+          bg: "redlight_bg.png",
+          intro: "Click around the red light district and find Chippy.",
+          wrong1: "Nope, not in the garbage.",
+          wrong2: "Nope, not in the hotel.",
+          wrong3: "Nope, not in the topless club.",
+          h1: [50, 230, 120, 120],
+          h2: [210, 100, 100, 140],
+          h3: [390, 110, 150, 120],
+          h4: [520, 260, 90, 90],
+          cpos: [420, 210, 250, 250]
+        }
+      };
+
+      const els = {
+        scene: document.getElementById("scene"),
+        message: document.getElementById("message"),
+        chippy: document.getElementById("chippy"),
+        sceneSelect: document.getElementById("sceneSelect"),
+        resetButton: document.getElementById("resetButton"),
+        hotspot1: document.getElementById("hotspot1"),
+        hotspot2: document.getElementById("hotspot2"),
+        hotspot3: document.getElementById("hotspot3"),
+        hotspot4: document.getElementById("hotspot4"),
+        audioIntro: document.getElementById("audioIntro"),
+        audioSniff: document.getElementById("audioSniff"),
+        audioWorried: document.getElementById("audioWorried"),
+        audioChip: document.getElementById("audioChip"),
+        audioFound: document.getElementById("audioFound"),
+        audioReset: document.getElementById("audioReset")
+      };
+
+      function say(message) {
+        els.message.textContent = message;
+      }
+
+      function playAudio(audioEl) {
+        if (!audioEl) {
+          return;
+        }
+
+        try {
+          audioEl.pause();
+          audioEl.currentTime = 0;
+          const playPromise = audioEl.play();
+
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {
+              /* ignore autoplay / user-gesture blocking */
+            });
+          }
+        } catch (error) {
+          /* ignore older browser playback issues */
+        }
+      }
+
+      function setBox(el, left, top, width, height) {
+        el.style.left = `${left}px`;
+        el.style.top = `${top}px`;
+        el.style.width = `${width}px`;
+        el.style.height = `${height}px`;
+      }
+
+      function loadScene(sceneName, playIntroSound = false) {
+        const sceneData = scenes[sceneName];
+        if (!sceneData) {
+          return;
+        }
+
+        currentScene = sceneName;
+        gameWon = false;
+
+        els.scene.style.backgroundImage = `url("${sceneData.bg}")`;
+        els.chippy.style.display = "none";
+
+        setBox(els.hotspot1, ...sceneData.h1);
+        setBox(els.hotspot2, ...sceneData.h2);
+        setBox(els.hotspot3, ...sceneData.h3);
+        setBox(els.hotspot4, ...sceneData.h4);
+
+        els.chippy.style.left = `${sceneData.cpos[0]}px`;
+        els.chippy.style.top = `${sceneData.cpos[1]}px`;
+        els.chippy.style.width = `${sceneData.cpos[2]}px`;
+        els.chippy.style.height = `${sceneData.cpos[3]}px`;
+
+        els.sceneSelect.value = sceneName;
+        say(sceneData.intro);
+
+        if (playIntroSound) {
+          playAudio(els.audioIntro);
+        }
+      }
+
+      function clickWrong(whichOne) {
+        if (gameWon) {
+          return;
+        }
+
+        const sceneData = scenes[currentScene];
+        if (!sceneData) {
+          return;
+        }
+
+        if (whichOne === 1) {
+          say(sceneData.wrong1);
+          playAudio(els.audioSniff);
+        } else if (whichOne === 2) {
+          say(sceneData.wrong2);
+          playAudio(els.audioWorried);
+        } else if (whichOne === 3) {
+          say(sceneData.wrong3);
+          playAudio(els.audioChip);
+        }
+      }
+
+      function foundChippy() {
+        if (gameWon) {
+          return;
+        }
+
+        gameWon = true;
+        els.chippy.style.display = "block";
+        say("There he is! You found Chippy!");
+        playAudio(els.audioFound);
+      }
+
+      function resetGame() {
+        loadScene(currentScene, false);
+        playAudio(els.audioReset);
+      }
+
+      function unlockIntroAudioOnce() {
+        if (introAudioUnlocked) {
+          return;
+        }
+        introAudioUnlocked = true;
+        playAudio(els.audioIntro);
+      }
+
+      els.sceneSelect.addEventListener("change", () => {
+        loadScene(els.sceneSelect.value, true);
+      });
+
+      els.resetButton.addEventListener("click", resetGame);
+      els.hotspot1.addEventListener("click", () => clickWrong(1));
+      els.hotspot2.addEventListener("click", () => clickWrong(2));
+      els.hotspot3.addEventListener("click", () => clickWrong(3));
+      els.hotspot4.addEventListener("click", foundChippy);
+
+      document.addEventListener(
+        "pointerdown",
+        unlockIntroAudioOnce,
+        { once: true }
+      );
+      document.addEventListener(
+        "keydown",
+        unlockIntroAudioOnce,
+        { once: true }
+      );
+
+      loadScene("park", false);
+    })();
+  </script>
+</body>
+</html>
