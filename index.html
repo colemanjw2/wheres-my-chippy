@@ -48,19 +48,35 @@
 
     /* --- Faux Win98 desktop dressing --- */
 
-    .desktop-icons {
+    .desktop-icon {
       position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 1;
-
-      /*
-        Adjust these to taste depending on your source asset
-      */
-      width: 170px;
-      height: auto;
-      pointer-events: none;
+      top: 16px;
+      left: 16px;
+      width: 72px;
+      text-align: center;
+      z-index: 2;
+      cursor: pointer;
       user-select: none;
+    }
+
+    .desktop-icon img {
+      width: 32px;
+      height: 32px;
+      display: block;
+      margin: 0 auto 4px auto;
+    }
+
+    .desktop-icon-label {
+      color: #ffffff;
+      font-size: 11px;
+      line-height: 1.2;
+      padding: 2px 4px;
+    }
+
+    /* classic selection highlight */
+    .desktop-icon.selected .desktop-icon-label {
+      background: #000080;
+      color: #ffffff;
     }
 
     .desktop-startbar {
@@ -330,12 +346,11 @@
 </head>
 <body>
   <!-- Faux desktop decorations -->
-  <img
-    class="desktop-icons"
-    src="win_98_icons.png"
-    alt=""
-    aria-hidden="true"
-  >
+
+  <div class="desktop-icon" id="desktopIE">
+    <img src="ie_98_ico.png" alt="The Innernette icon">
+    <div class="desktop-icon-label">The Innernette</div>
+  </div>
 
   <img
     class="desktop-startbar"
