@@ -14,6 +14,7 @@
 
   <style>
     :root {
+      --desktop-green: #007c6b;
       --win98-gray: #c0c0c0;
       --win98-dark: #808080;
       --win98-darker: #404040;
@@ -21,6 +22,7 @@
       --win98-blue: #000080;
       --scene-width: 640px;
       --scene-height: 400px;
+      --startbar-height: 42px;
     }
 
     * {
@@ -39,19 +41,55 @@
 
     body {
       min-height: 100vh;
-      padding: 24px;
-      background-color: #008080;
-      background-image: url("windows_98_bg.png");
-      background-repeat: no-repeat;
-      background-position: center top;
-      background-attachment: fixed;
-      background-size: 80%; 
+      overflow-x: hidden;
+      background: var(--desktop-green);
+      position: relative;
+    }
+
+    /* --- Faux Win98 desktop dressing --- */
+
+    .desktop-icons {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 1;
+
+      /*
+        Adjust these to taste depending on your source asset
+      */
+      width: 170px;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .desktop-startbar {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: var(--startbar-height);
+      object-fit: fill;
+      z-index: 2;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* --- Main app window --- */
+
+    .app-shell {
+      position: relative;
+      z-index: 3;
+      min-height: 100vh;
+      padding: 24px 24px calc(var(--startbar-height) + 24px) 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
     }
 
     .window {
       width: 700px;
       max-width: 100%;
-      margin: 0 auto;
       background: var(--win98-gray);
       border-top: 2px solid var(--win98-light);
       border-left: 2px solid var(--win98-light);
@@ -213,6 +251,31 @@
       pointer-events: none;
     }
 
+    .winbanner {
+      display: none;
+      margin-top: 10px;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+      letter-spacing: 1px;
+      background: var(--win98-gray);
+      color: #000000;
+      border-top: 1px solid var(--win98-light);
+      border-left: 1px solid var(--win98-light);
+      border-right: 1px solid var(--win98-darker);
+      border-bottom: 1px solid var(--win98-darker);
+    }
+
+    .winbanner.flashA {
+      background: #000080;
+      color: #ffffff;
+    }
+
+    .winbanner.flashB {
+      background: #ffff00;
+      color: #000000;
+    }
+
     .panel {
       margin-top: 10px;
       padding: 8px;
@@ -243,89 +306,130 @@
       max-width: 100%;
       height: auto;
     }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        justify-content: flex-start;
+      }
+
+      .window {
+        width: 100%;
+      }
+
+      .scene {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 640 / 400;
+      }
+
+      .desktop-icons {
+        width: 120px;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="window" aria-labelledby="game-title">
-    <header class="titlebar" id="game-title">
-      <div class="titlebar-text">Where’s My Chippy?</div>
-      <div class="titlebar-buttons" aria-hidden="true">
-        <div class="titlebar-button">_</div>
-        <div class="titlebar-button">□</div>
-        <div class="titlebar-button">×</div>
-      </div>
-    </header>
+  <!-- Faux desktop decorations -->
+  <img
+    class="desktop-icons"
+    src="win_98_icons.png"
+    alt=""
+    aria-hidden="true"
+  >
 
-    <section class="content">
-      <div class="controls">
-        <label for="sceneSelect">Search Location:</label>
+  <img
+    class="desktop-startbar"
+    src="win_98_startbar.png"
+    alt=""
+    aria-hidden="true"
+  >
 
-        <select id="sceneSelect" class="xpselect" name="scene">
-          <option value="park">The Park</option>
-          <option value="sea">Under the Sea</option>
-          <option value="redlight">Red Light District</option>
-        </select>
+  <div class="app-shell">
+    <main class="window" aria-labelledby="game-title">
+      <header class="titlebar" id="game-title">
+        <div class="titlebar-text">Where’s My Chippy?</div>
+        <div class="titlebar-buttons" aria-hidden="true">
+          <div class="titlebar-button">_</div>
+          <div class="titlebar-button">□</div>
+          <div class="titlebar-button">×</div>
+        </div>
+      </header>
 
-        <button id="resetButton" class="xpbutton" type="button">Reset</button>
-      </div>
+      <section class="content">
+        <div class="controls">
+          <label for="sceneSelect">Search Location:</label>
 
-      <div class="scene-wrap">
-        <section
-          id="scene"
-          class="scene"
-          aria-label="Search scene"
+          <select id="sceneSelect" class="xpselect" name="scene">
+            <option value="park">The Park</option>
+            <option value="sea">Under the Sea</option>
+            <option value="redlight">Red Light District</option>
+          </select>
+
+          <button id="resetButton" class="xpbutton" type="button">Reset</button>
+        </div>
+
+        <div class="scene-wrap">
+          <section
+            id="scene"
+            class="scene"
+            aria-label="Search scene"
+          >
+            <button
+              id="hotspot1"
+              class="hotspot"
+              type="button"
+              aria-label="Search hotspot 1"
+            ></button>
+
+            <button
+              id="hotspot2"
+              class="hotspot"
+              type="button"
+              aria-label="Search hotspot 2"
+            ></button>
+
+            <button
+              id="hotspot3"
+              class="hotspot"
+              type="button"
+              aria-label="Search hotspot 3"
+            ></button>
+
+            <button
+              id="hotspot4"
+              class="hotspot"
+              type="button"
+              aria-label="Search correct hotspot"
+            ></button>
+
+            <img id="chippy" src="chippy.gif" alt="Chippy has been found">
+          </section>
+        </div>
+
+        <div id="winBanner" class="winbanner" aria-live="polite">
+          ★ YOU FOUND CHIPPY! ★
+        </div>
+
+        <div
+          id="message"
+          class="panel"
+          role="status"
+          aria-live="polite"
         >
-          <button
-            id="hotspot1"
-            class="hotspot"
-            type="button"
-            aria-label="Search hotspot 1"
-          ></button>
+          Click around and find Chippy.
+        </div>
 
-          <button
-            id="hotspot2"
-            class="hotspot"
-            type="button"
-            aria-label="Search hotspot 2"
-          ></button>
-
-          <button
-            id="hotspot3"
-            class="hotspot"
-            type="button"
-            aria-label="Search hotspot 3"
-          ></button>
-
-          <button
-            id="hotspot4"
-            class="hotspot"
-            type="button"
-            aria-label="Search correct hotspot"
-          ></button>
-
-          <img id="chippy" src="chippy.gif" alt="Chippy has been found">
-        </section>
-      </div>
-
-      <div
-        id="message"
-        class="panel"
-        role="status"
-        aria-live="polite"
-      >
-        Click around and find Chippy.
-      </div>
-
-      <div class="footer-joke">
-        <div class="footer-joke-text">Endless fun from the 103 pages of:</div>
-        <img
-          class="footer-gif"
-          src="theinnernette.gif"
-          alt="The Innernette"
-        >
-      </div>
-    </section>
-  </main>
+        <div class="footer-joke">
+          <div class="footer-joke-text">Endless fun from the 103 pages of:</div>
+          <img
+            class="footer-gif"
+            src="theinnernette.gif"
+            alt="The Innernette"
+          >
+        </div>
+      </section>
+    </main>
+  </div>
 
   <audio id="audioIntro" preload="auto" src="where_is_my_chippy.wav"></audio>
   <audio id="audioSniff" preload="auto" src="sniff_chippy.wav"></audio>
@@ -339,6 +443,8 @@
       let gameWon = false;
       let currentScene = "park";
       let introAudioUnlocked = false;
+      let winFlashTimer = null;
+      let winFlashState = false;
 
       const scenes = {
         park: {
@@ -391,6 +497,7 @@
         hotspot2: document.getElementById("hotspot2"),
         hotspot3: document.getElementById("hotspot3"),
         hotspot4: document.getElementById("hotspot4"),
+        winBanner: document.getElementById("winBanner"),
         audioIntro: document.getElementById("audioIntro"),
         audioSniff: document.getElementById("audioSniff"),
         audioWorried: document.getElementById("audioWorried"),
@@ -427,6 +534,42 @@
         el.style.height = `${height}px`;
       }
 
+      function stopWinBannerFlash() {
+        if (winFlashTimer) {
+          window.clearInterval(winFlashTimer);
+          winFlashTimer = null;
+        }
+
+        els.winBanner.className = "winbanner";
+        els.winBanner.style.display = "none";
+      }
+
+      function startWinBannerFlash() {
+        stopWinBannerFlash();
+
+        els.winBanner.style.display = "block";
+        els.winBanner.className = "winbanner flashA";
+        winFlashState = false;
+
+        winFlashTimer = window.setInterval(() => {
+          winFlashState = !winFlashState;
+
+          if (winFlashState) {
+            els.winBanner.className = "winbanner flashA";
+          } else {
+            els.winBanner.className = "winbanner flashB";
+          }
+        }, 350);
+
+        window.setTimeout(() => {
+          if (winFlashTimer) {
+            window.clearInterval(winFlashTimer);
+            winFlashTimer = null;
+          }
+          els.winBanner.className = "winbanner flashA";
+        }, 4000);
+      }
+
       function loadScene(sceneName, playIntroSound = false) {
         const sceneData = scenes[sceneName];
         if (!sceneData) {
@@ -435,6 +578,7 @@
 
         currentScene = sceneName;
         gameWon = false;
+        stopWinBannerFlash();
 
         els.scene.style.backgroundImage = `url("${sceneData.bg}")`;
         els.chippy.style.display = "none";
@@ -488,6 +632,7 @@
         els.chippy.style.display = "block";
         say("There he is! You found Chippy!");
         playAudio(els.audioFound);
+        startWinBannerFlash();
       }
 
       function resetGame() {
@@ -521,4 +666,3 @@
   </script>
 </body>
 </html>
-```
