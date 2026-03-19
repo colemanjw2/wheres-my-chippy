@@ -22,7 +22,7 @@
       --win98-blue: #000080;
       --scene-width: 640px;
       --scene-height: 400px;
-      --startbar-height: 42px;
+      --startbar-height: 34px;
     }
 
     * {
@@ -48,20 +48,41 @@
 
     /* --- Faux Win98 desktop dressing --- */
 
+    .desktop-icon {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: 72px;
+      text-align: center;
+      z-index: 2;
+      user-select: none;
+    }
+
+    .desktop-icon img {
+      width: 32px;
+      height: 32px;
+      display: block;
+      margin: 0 auto 4px auto;
+    }
+
+    .desktop-icon-label {
+      color: #ffffff;
+      font-size: 11px;
+      line-height: 1.2;
+      padding: 2px 4px;
+      text-shadow: 1px 1px 0 #000000;
+    }
+
     .notepad-window {
       position: fixed;
       top: 18px;
       right: 18px;
-
-      /* Adjust whole window here */
       width: 260px;
-
-      background: #c0c0c0;
-      border-top: 2px solid #ffffff;
-      border-left: 2px solid #ffffff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-
+      background: var(--win98-gray);
+      border-top: 2px solid var(--win98-light);
+      border-left: 2px solid var(--win98-light);
+      border-right: 2px solid var(--win98-darker);
+      border-bottom: 2px solid var(--win98-darker);
       z-index: 2;
       box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
       user-select: none;
@@ -72,7 +93,7 @@
       color: #ffffff;
       font-weight: bold;
       padding: 3px 4px;
-      border-bottom: 1px solid #808080;
+      border-bottom: 1px solid var(--win98-dark);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -95,11 +116,11 @@
     .notepad-button {
       width: 16px;
       height: 14px;
-      background: #c0c0c0;
-      border-top: 1px solid #ffffff;
-      border-left: 1px solid #ffffff;
-      border-right: 1px solid #404040;
-      border-bottom: 1px solid #404040;
+      background: var(--win98-gray);
+      border-top: 1px solid var(--win98-light);
+      border-left: 1px solid var(--win98-light);
+      border-right: 1px solid var(--win98-darker);
+      border-bottom: 1px solid var(--win98-darker);
       color: #000000;
       font-size: 9px;
       line-height: 12px;
@@ -108,10 +129,10 @@
     }
 
     .notepad-menu {
-      background: #c0c0c0;
+      background: var(--win98-gray);
       color: #000000;
       padding: 3px 6px;
-      border-bottom: 1px solid #808080;
+      border-bottom: 1px solid var(--win98-dark);
       font-size: 11px;
     }
 
@@ -121,57 +142,116 @@
       margin: 4px;
       padding: 8px;
       min-height: 180px;
-      border: 1px solid #808080;
+      border: 1px solid var(--win98-dark);
       font-family: "Courier New", monospace;
       font-size: 13px;
       line-height: 1.4;
       white-space: pre-line;
     }
 
+    /* --- Fake Start Bar --- */
 
-
-
-    .desktop-icon {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: 72px;
-      text-align: center;
-      z-index: 2;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .desktop-icon img {
-      width: 32px;
-      height: 32px;
-      display: block;
-      margin: 0 auto 4px auto;
-    }
-
-    .desktop-icon-label {
-      color: #ffffff;
-      font-size: 11px;
-      line-height: 1.2;
-      padding: 2px 4px;
-    }
-
-    /* classic selection highlight */
-    .desktop-icon.selected .desktop-icon-label {
-      background: #000080;
-      color: #ffffff;
-    }
-
-    .desktop-startbar {
+    .startbar {
       position: fixed;
       left: 0;
+      right: 0;
       bottom: 0;
-      width: 100%;
       height: var(--startbar-height);
-      object-fit: fill;
-      z-index: 2;
-      pointer-events: none;
+      z-index: 4;
+      background: var(--win98-gray);
+      border-top: 1px solid var(--win98-light);
+      display: flex;
+      align-items: stretch;
+      padding: 2px 4px;
+      gap: 4px;
+    }
+
+    .startbar-left {
+      display: flex;
+      align-items: stretch;
+      flex: 1;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .start-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--win98-gray);
+      border-top: 1px solid var(--win98-light);
+      border-left: 1px solid var(--win98-light);
+      border-right: 1px solid var(--win98-darker);
+      border-bottom: 1px solid var(--win98-darker);
+      padding: 0 2px;
+      flex: 0 0 auto;
+    }
+
+    .start-button img {
+      display: block;
+      height: 26px;
+      width: auto;
       user-select: none;
+      pointer-events: none;
+    }
+
+    .task-divider {
+      width: 1px;
+      margin: 2px 0;
+      background: var(--win98-dark);
+      border-left: 1px solid var(--win98-light);
+      flex: 0 0 auto;
+    }
+
+    .task-button {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      height: 100%;
+      background: var(--win98-gray);
+      border-top: 1px solid var(--win98-light);
+      border-left: 1px solid var(--win98-light);
+      border-right: 1px solid var(--win98-darker);
+      border-bottom: 1px solid var(--win98-darker);
+      padding: 0 8px;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select: none;
+    }
+
+    .task-button.active {
+      border-top: 1px solid var(--win98-darker);
+      border-left: 1px solid var(--win98-darker);
+      border-right: 1px solid var(--win98-light);
+      border-bottom: 1px solid var(--win98-light);
+      background: #d4d0c8;
+    }
+
+    .task-button.app-main {
+      width: 180px;
+      flex: 0 0 auto;
+    }
+
+    .task-button.app-note {
+      width: 180px;
+      flex: 0 0 auto;
+    }
+
+    .tray {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      padding: 0 8px;
+      background: var(--win98-gray);
+      border-top: 1px solid var(--win98-darker);
+      border-left: 1px solid var(--win98-darker);
+      border-right: 1px solid var(--win98-light);
+      border-bottom: 1px solid var(--win98-light);
+      color: #000000;
+      flex: 0 0 auto;
+      white-space: nowrap;
     }
 
     /* --- Main app window --- */
@@ -406,9 +486,17 @@
       height: auto;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 920px) {
+      .notepad-window {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 16px auto 0 auto;
+      }
+
       .app-shell {
         justify-content: flex-start;
+        padding-top: 16px;
       }
 
       .window {
@@ -421,54 +509,40 @@
         aspect-ratio: 640 / 400;
       }
 
-      .desktop-icons {
-        width: 120px;
+      .task-button.app-main,
+      .task-button.app-note {
+        width: 140px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Faux desktop decorations -->
-
-  <div class="desktop-icon" id="desktopIE">
+  <div class="desktop-icon">
     <img src="ie_98_ico.png" alt="The Innernette icon">
     <div class="desktop-icon-label">The Innernette</div>
   </div>
 
-  <img
-    class="desktop-startbar"
-    src="win_98_startbar.png"
-    alt=""
-    aria-hidden="true"
-  >
-
-<div class="notepad-window" aria-hidden="true">
-  <div class="notepad-titlebar">
-    <div class="notepad-title">Reminders - Notepad</div>
-    <div class="notepad-buttons">
-      <div class="notepad-button">_</div>
-      <div class="notepad-button">□</div>
-      <div class="notepad-button">×</div>
+  <div class="notepad-window" aria-hidden="true">
+    <div class="notepad-titlebar">
+      <div class="notepad-title">Reminders - Notepad</div>
+      <div class="notepad-buttons">
+        <div class="notepad-button">_</div>
+        <div class="notepad-button">□</div>
+        <div class="notepad-button">×</div>
+      </div>
     </div>
+
+    <div class="notepad-menu">File Edit Search Help</div>
+
+    <div class="notepad-paper">Reminders:
+
+call your PepPep
+pick up Bob's Cigarette Juice
+pay Cinco-fone bill
+take D-Pants to tailor
+
+Created by Joshua Coleman</div>
   </div>
-
-  <div class="notepad-menu">File Edit Search Help</div>
-
-  <div class="notepad-paper">
-    Reminders:
-
-    call your PepPep
-    pick up Bob's Cigarette Juice
-    pay Cinco-fone bill
-    take D-Pants to tailor
-
-    Created by Joshua Coleman
-  </div>
-</div>
-
-
-
-
 
   <div class="app-shell">
     <main class="window" aria-labelledby="game-title">
@@ -555,6 +629,21 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="startbar" aria-hidden="true">
+    <div class="startbar-left">
+      <div class="start-button">
+        <img src="win_98_start_button.png" alt="">
+      </div>
+
+      <div class="task-divider"></div>
+
+      <div class="task-button app-main active">Where's My Chippy?</div>
+      <div class="task-button app-note">Reminders - Notepad</div>
+    </div>
+
+    <div class="tray">12:03 PM</div>
   </div>
 
   <audio id="audioIntro" preload="auto" src="where_is_my_chippy.wav"></audio>
