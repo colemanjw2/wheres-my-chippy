@@ -45,22 +45,26 @@
     }
 
     .window {
-      width: 660px;
+      width: 700px;
       max-width: 100%;
       margin: 0 auto;
-      border: 1px solid var(--xp-border);
-      background: var(--xp-panel);
+      border: 1px solid #3a6ea5;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 #b7b4a8;
     }
 
     .titlebar {
-      background: url("/assets/xpbar.png") repeat-x;
+      background: url("xpbar.png") repeat-x;
       color: #ffffff;
       font-weight: bold;
-      padding: 6px 10px;
+      padding: 7px 10px;
+      border-bottom: 1px solid #7f9db9;
+      letter-spacing: 0.2px;
     }
 
     .content {
       padding: 10px;
+      background: #f3f1e8;
     }
 
     .controls {
@@ -69,6 +73,9 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 10px;
+      padding: 8px;
+      background: #ece9d8;
+      border: 1px solid #b7b4a8;
     }
 
     .controls label {
@@ -78,6 +85,25 @@
     .xpselect,
     .xpbutton {
       font: inherit;
+      border: 1px solid #7f9db9;
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .xpbutton {
+      padding: 3px 10px;
+      background: #ece9d8;
+      cursor: pointer;
+    }
+
+    .xpbutton:hover {
+      background: #f6f4ec;
+    }
+
+    .scene-wrap {
+      padding: 8px;
+      background: #ece9d8;
+      border: 1px solid #b7b4a8;
     }
 
     .scene {
@@ -89,6 +115,7 @@
       background-image: url("park_bg.png");
       background-repeat: no-repeat;
       background-size: contain;
+      background-color: #000000;
       overflow: hidden;
     }
 
@@ -103,9 +130,13 @@
       -webkit-appearance: none;
     }
 
+    .hotspot:hover {
+      background: transparent;
+      outline: none;
+    }
 
     .hotspot:focus-visible {
-      outline: 2px solid var(--xp-border);
+      outline: 2px solid #7f9db9;
     }
 
     /*
@@ -131,8 +162,26 @@
       margin-top: 10px;
       padding: 8px;
       border: 1px solid var(--xp-border);
-      background: #f5f5f5;
-      min-height: 36px;
+      background: #ffffff;
+      min-height: 40px;
+      line-height: 1.4;
+    }
+
+    .footer-joke {
+      margin-top: 14px;
+      text-align: center;
+      color: #333333;
+    }
+
+    .footer-joke-text {
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .footer-gif {
+      display: block;
+      margin: 0 auto;
+      border: 0;
     }
 
     .visually-hidden {
@@ -165,41 +214,43 @@
         <button id="resetButton" class="xpbutton" type="button">Reset</button>
       </div>
 
-      <section
-        id="scene"
-        class="scene"
-        aria-label="Search scene"
-      >
-        <button
-          id="hotspot1"
-          class="hotspot"
-          type="button"
-          aria-label="Search hotspot 1"
-        ></button>
+      <div class="scene-wrap">
+        <section
+          id="scene"
+          class="scene"
+          aria-label="Search scene"
+        >
+          <button
+            id="hotspot1"
+            class="hotspot"
+            type="button"
+            aria-label="Search hotspot 1"
+          ></button>
 
-        <button
-          id="hotspot2"
-          class="hotspot"
-          type="button"
-          aria-label="Search hotspot 2"
-        ></button>
+          <button
+            id="hotspot2"
+            class="hotspot"
+            type="button"
+            aria-label="Search hotspot 2"
+          ></button>
 
-        <button
-          id="hotspot3"
-          class="hotspot"
-          type="button"
-          aria-label="Search hotspot 3"
-        ></button>
+          <button
+            id="hotspot3"
+            class="hotspot"
+            type="button"
+            aria-label="Search hotspot 3"
+          ></button>
 
-        <button
-          id="hotspot4"
-          class="hotspot"
-          type="button"
-          aria-label="Search correct hotspot"
-        ></button>
+          <button
+            id="hotspot4"
+            class="hotspot"
+            type="button"
+            aria-label="Search correct hotspot"
+          ></button>
 
-        <img id="chippy" src="chippy.gif" alt="Chippy has been found">
-      </section>
+          <img id="chippy" src="chippy.gif" alt="Chippy has been found">
+        </section>
+      </div>
 
       <div
         id="message"
@@ -208,6 +259,15 @@
         aria-live="polite"
       >
         Click around and find Chippy.
+      </div>
+
+      <div class="footer-joke">
+        <div class="footer-joke-text">Endless fun from the 103 pages of:</div>
+        <img
+          class="footer-gif"
+          src="theinnernette.gif"
+          alt="The Innernette"
+        >
       </div>
     </section>
   </main>
@@ -299,12 +359,9 @@
           const playPromise = audioEl.play();
 
           if (playPromise && typeof playPromise.catch === "function") {
-            playPromise.catch(() => {
-              /* ignore autoplay / user-gesture blocking */
-            });
+            playPromise.catch(() => {});
           }
         } catch (error) {
-          /* ignore older browser playback issues */
         }
       }
 
@@ -401,16 +458,8 @@
       els.hotspot3.addEventListener("click", () => clickWrong(3));
       els.hotspot4.addEventListener("click", foundChippy);
 
-      document.addEventListener(
-        "pointerdown",
-        unlockIntroAudioOnce,
-        { once: true }
-      );
-      document.addEventListener(
-        "keydown",
-        unlockIntroAudioOnce,
-        { once: true }
-      );
+      document.addEventListener("pointerdown", unlockIntroAudioOnce, { once: true });
+      document.addEventListener("keydown", unlockIntroAudioOnce, { once: true });
 
       loadScene("park", false);
     })();
